@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Eenadu ePaper</title>
+    <link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel = "stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="epaper.css">
+  </head>
+
+  <body>
+    <div class="header">
+        <a href=""><img id="img-logo" src="ePaper_images/logo.png" alt="logo"></a>
+    </div>
+    <div class="toggle">
+       <span id="cross-page">&#10006;</span>
+      <div class="row" id="pagelist"></div>
+    </div>
+    <div class="site_cover">
+      <div class="sup-container">
+          <span class="ic ic_menu"><img src="ePaper_images/menu-icon.png"></span>
+          <ul>
+              <li><input class="cal caret" id="datepicker" type="text" data-toggle="tooltip" data-placement="top" title="Change Date"></li>
+              <li><span class="caret" id="mainEdition" data-toggle="tooltip" data-placement="top" title="Change main edition">TELANGANA</span></li>
+              <li><span class="caret" id="magazine" data-toggle="tooltip" data-placement="top" title="Change magazine">SUNDAY MAGAZINE</span></li>
+              <li><span class="caret" id="page" class="close-page" data-toggle="tooltip" data-placement="top" title="Change page">Page 1</span></li>
+              <li><span id="search" data-toggle="tooltip" data-placement="top" title="Zoom in/out">&#128269; </span></li>
+              <li>
+                <a id="download" target="_blank" download>
+                  <span data-toggle="tooltip" data-placement="top" title="Download Page">
+                    <i class="fa fa-download"></i>
+                  </span>
+                </a>
+              </li>
+          </ul>
+      </div>
+      <div  class="content">
+        <div id="slider" class="carousel slide" data-ride="carousel" interval="false" data-interval="false">
+          <div class="carousel-inner" id="slides"></div>
+          <a class="carousel-control-prev" href="#slider" role="button" data-slide="prev">
+            <span id="prev_page" class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+          </a>
+          <a class="carousel-control-next" href="#slider" role="button" data-slide="next">
+            <span id="next_page" class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+          </a>
+        </div>
+      </div>
+      <div class="right_ads_area">
+        <div class="ads_160X600"></div>
+      </div>
+    </div>
+
+    <!-- The Modal -->
+      <div class="modal fade" id="myModal">
+        <div class="modal-dialog">
+          <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+              <h4 class="modal-title">SELECT MAIN EDITIONS</h4>
+              <button type="button" class="close" data-dismiss="modal" id="cross">&#10006;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body" id="modal-body-content">
+              <section class="section">
+                  <ul id="mainEditionList">
+                    <li><a editionname="Andhra Pradesh" mainid="1">ANDHRA PRADESH</a></li>
+                    <li><a editionname="GREATER_HYDERABAD" mainid="1">GREATER HYDERABAD</a></li>
+                    <li><a editionname="Telangana" mainid="1" class="location-selected">TELANGANA</a></li>
+                  </ul>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+  <script src="epaper.js"></script>
+  <script>
+      var editionName = "Telangana";
+
+      $(document).ready(function(){
+
+        getPagesOnLoad(editionName);
+
+        $("#mainEdition").click(function(){
+            $("#myModal").modal();
+        });
+
+        $("#mainEditionList > li > a").on('click', function() {
+            unSlick();
+            editionName = $(this).attr("editionname");
+            $("#myModal").modal("hide");
+            var EDITION_NAME = editionName.toUpperCase();
+            $("#mainEdition").html( EDITION_NAME );
+            getPagesOnLoad(editionName);
+        });
+
+        $("#magazine").on('click', function () {
+            unSlick();
+            $(".toggle").slideDown(500);
+            $("#pagelist").empty();
+
+            var dir = "ePaper_images/magazine/";
+            var m = new Array();
+            for(var i=1;i<=15;++i) {
+              var path = dir + "img" + i + ".jpg";
+              pagelist(path, i);
+              m.push(path);
+            }
+            carouselInit(m);
+            slickInit();
+            setupURL(dir + "img1.jpg");
+        });
+
+
+        $( "#datepicker" ).datepicker({
+          defaultDate: new Date(),
+          dateFormat:'dd/mm/yy',
+          maxDate: '0',
+          showAnim: 'slideDown',
+          onSelect: function (dateText, inst){
+            getPagesByDate(dateText, editionName);
+          }
+        });
+
+        $( "#datepicker" ).datepicker("setDate", new Date());
+
+        $("#prev_page").click(function() {
+            $(".toggle").slideUp(500);
+            $("#slider").carousel("prev");
+            $("#slider").on('slid.bs.carousel', function(){
+              $("#page").html($(".carousel-item.active").children().attr("page") );
+              var url = $(".carousel-item.active").children().attr("src");
+              setupURL(url);
+            });
+        });
+
+        $("#next_page").click(function() {
+          $(".toggle").slideUp(500);
+          $("#slider").carousel("next");
+          $("#slider").on('slid.bs.carousel', function(){
+            $("#page").html($(".carousel-item.active").children().attr("page") );
+            var url = $(".carousel-item.active").children().attr("src");
+            setupURL(url);
+          });
+        });
+
+        $("#page").click( function () {
+            $(".toggle").slideToggle(500);
+        });
+
+        $("#cross-page").click(function () {
+            $(".toggle").slideUp(500);
+        });
+
+        $("#search").click( function () {
+            if($("body").hasClass("zoom_level_1")){
+              $("body").removeClass("zoom_level_1");
+            }
+            else {
+              $("body").addClass("zoom_level_1");
+            }
+        });
+
+        $(".sup-container > ul > li > span").click( function () {
+            $("ul > li > span").css("font-weight", "normal");
+            $(this).css("font-weight", "bold");
+        });
+
+        $("#mainEditionList > li > a").click( function () {
+            $("#mainEditionList > li > a").css("font-weight", "normal");
+            $(this).css("font-weight", "bold");
+        });
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+    });
+</script>
+</body>
+</html>
